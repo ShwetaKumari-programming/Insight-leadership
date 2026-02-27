@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trends & Forecasting - Conversational Leadership Analytics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <script>
+    if (!localStorage.getItem('isLoggedIn')) {
+        window.location.href = '/login.html';
+    }
+    </script>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo" style="text-decoration: none; color: inherit;">🏠 Home</a>
+            <ul class="nav-links">
+                <!-- <li><a href="/">💬 Chat (Primary)</a></li> -->
+                <li style="margin-left: 20px; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.3);"><a href="/dashboard">📊 Dashboard</a></li>
+                <li><a href="/failures">🔴 Failures</a></li>
+                <li><a href="/weekend">📅 Weekend</a></li>
+                <li><a href="/performance">⚡ Performance</a></li>
+                <li><a href="/trends" class="active">📈 Trends</a></li>
+                <!-- Leadership tab removed -->
+                <li><a href="/static/logout.html" style="float:right; color:#e53935; font-weight:600;">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+            <div id="roleDisplay" style="margin-top:8px;font-size:1em;color:#fff;opacity:0.85;"></div>
+           
+        <div class="page-header">
+            <h1>📈 Trends & Forecasting</h1>
+            
+        </div>
+
+        <!-- Chat-First Invitation Banner -->
+        <div class="card" style="margin-bottom: 30px; background: linear-gradient(135deg, #4caf5015 0%, #8bc34a15 100%); border-left: 4px solid #4caf50;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="margin-bottom: 10px; color: #4caf50;">📊 Looking for trend insights?</h3>
+                    <p style="margin: 0; color: #555; font-size: 0.95em;">Ask the chat assistant "What trends do you see?" or "Is the system getting better or worse?" to get AI-powered trend analysis with forecasts and actionable recommendations.</p>
+                </div>
+                <a href="/" class="btn btn-primary" style="display: inline-block; margin-left: 20px; white-space: nowrap; padding: 12px 24px; font-size: 1em; flex-shrink: 0; background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);">Ask Chat →</a>
+            </div>
+        </div>
+
+        <!-- Trend Status Cards -->
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title">Failure Rate Trend <span title="Shows if failure rates are rising or falling over time. Leadership can use this to spot emerging risks or improvements.">ℹ️</span></div>
+                <div class="card-value" id="trendDirection">-</div>
+                <div class="card-subtitle">Historical direction</div>
+                <div id="trendStatus"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Trend Confidence <span title="Indicates how reliable the trend forecast is. High confidence means leadership can trust the prediction for planning.">ℹ️</span></div>
+                <div class="card-value" id="trendConfidence">-</div>
+                <div class="card-subtitle">Forecast accuracy</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Forecasted Rate (7d) <span title="Predicted failure rate for the next 7 days. Helps leadership anticipate and prepare for future risks.">ℹ️</span></div>
+                <div class="card-value" id="forecast7d">-</div>
+                <div class="card-subtitle">Predicted failure rate</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Anomalies Detected</div>
+                <div class="card-value" id="anomalyCount">-</div>
+                <div class="card-subtitle">Last 30 days</div>
+            </div>
+        </div>
+
+        <!-- Trend Analysis -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">📊 Trend Analysis</h2>
+            <div class="card">
+                <div id="trendAnalysis" style="line-height: 1.8; font-size: 0.95em;">
+                    <p style="text-align: center; color: #999; padding: 30px;">Loading trend data...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Anomaly Detection - Failure Rate -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">⚠️ Detected Anomalies — Failure Rate Spikes</h2>
+            <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9em;"></p>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Failure Rate</th>
+                            <th>Expected (Mean)</th>
+                            <th>Deviation</th>
+                            <th>Severity</th>
+                            <th>Failed / Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="anomalyTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px;">Loading anomaly data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Volume Anomalies -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">📊 Volume Anomalies — Unusual Transaction Counts</h2>
+            <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9em;"></p>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Actual Volume</th>
+                            <th>Expected Volume</th>
+                            <th>Deviation</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody id="volumeAnomalyTable">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 30px;">Loading volume data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══════════════ VOLUME ANALYSIS SECTION ═══════════════ -->
+        <div style="margin-top: 50px;">
+            <h2 style="color: white; margin-bottom: 10px;">📦 Volume Analysis — UPI Transactions (2024)</h2>
+            <p style="color: #aaa; margin-bottom: 25px; font-size: 0.9em;"></p>
+
+            <!-- Volume Summary Cards -->
+            <div class="cards-grid" id="volumeSummaryCards" style="margin-bottom: 30px;">
+                <div class="card">
+                    <div class="card-title">Total Transactions</div>
+                    <div class="card-value" id="volTotalTxns">-</div>
+                    <div class="card-subtitle">Jan–Dec 2024</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Amount</div>
+                    <div class="card-value" id="volTotalAmount">-</div>
+                    <div class="card-subtitle">INR processed</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Avg Daily Volume</div>
+                    <div class="card-value" id="volDailyAvg">-</div>
+                    <div class="card-subtitle">Transactions per day</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Avg Transaction</div>
+                    <div class="card-value" id="volAvgTxn">-</div>
+                    <div class="card-subtitle">Per transaction average</div>
+                </div>
+            </div>
+
+            <!-- Hourly Volume -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #64b5f6; margin-bottom: 15px;">⏰ Hourly Volume Distribution</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hour</th>
+                                <th>Transactions</th>
+                                <th>Total Amount (₹)</th>
+                                <th>Avg Amount (₹)</th>
+                                <th>Failures</th>
+                                <th>Failure Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hourlyVolumeTable">
+                            <tr><td colspan="6" style="text-align:center;padding:20px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Transaction Type Volume -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #e040fb; margin-bottom: 15px;">💳 Transaction Type Volume</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Transactions</th>
+                                <th>Share</th>
+                                <th>Total Amount (₹)</th>
+                                <th>Avg Amount (₹)</th>
+                                <th>Failures</th>
+                                <th>Failure Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="txnTypeVolumeTable">
+                            <tr><td colspan="7" style="text-align:center;padding:20px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Category Volume -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #ffc107; margin-bottom: 15px;">🏷️ Merchant Category Volume</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Transactions</th>
+                                <th>Share</th>
+                                <th>Total Amount (₹)</th>
+                                <th>Avg Amount (₹)</th>
+                                <th>Failures</th>
+                                <th>Failure Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryVolumeTable">
+                            <tr><td colspan="7" style="text-align:center;padding:20px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bank Volume -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #4caf50; margin-bottom: 15px;">🏦 Sender Bank Volume</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bank</th>
+                                <th>Transactions</th>
+                                <th>Share</th>
+                                <th>Total Amount (₹)</th>
+                                <th>Avg Amount (₹)</th>
+                                <th>Failures</th>
+                                <th>Failure Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bankVolumeTable">
+                            <tr><td colspan="7" style="text-align:center;padding:20px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- State Volume (Top 10) -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #ff9800; margin-bottom: 15px;">📍 Top 10 States by Volume</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>Transactions</th>
+                                <th>Share</th>
+                                <th>Total Amount (₹)</th>
+                                <th>Avg Amount (₹)</th>
+                                <th>Failures</th>
+                                <th>Failure Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stateVolumeTable">
+                            <tr><td colspan="7" style="text-align:center;padding:20px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Two-column: Network + Device -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px;">
+                <div>
+                    <h3 style="color: #00bcd4; margin-bottom: 15px;">📶 Network Type Volume</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Network</th>
+                                    <th>Transactions</th>
+                                    <th>Share</th>
+                                    <th>Failures</th>
+                                    <th>FR%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="networkVolumeTable">
+                                <tr><td colspan="5" style="text-align:center;padding:20px;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #9c27b0; margin-bottom: 15px;">📱 Device Type Volume</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Transactions</th>
+                                    <th>Share</th>
+                                    <th>Failures</th>
+                                    <th>FR%</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deviceVolumeTable">
+                                <tr><td colspan="5" style="text-align:center;padding:20px;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amount Distribution -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #ff5722; margin-bottom: 15px;">💰 Amount Range Distribution</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Amount Range</th>
+                                <th>Transactions</th>
+                                <th>Share</th>
+                                <th>Failures</th>
+                                <th>Failure Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="amountDistTable">
+                            <tr><td colspan="5" style="text-align:center;padding:20px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Two-column: Day of Week + Weekend/Weekday + Peak/Off-Peak -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: #8bc34a; margin-bottom: 15px;">📅 Day of Week Volume</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Transactions</th>
+                                <th>Total Amount (₹)</th>
+                                <th>Avg Amount (₹)</th>
+                                <th>Failures</th>
+                                <th>Failure Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dowVolumeTable">
+                            <tr><td colspan="6" style="text-align:center;padding:20px;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Weekend/Weekday + Peak/Off-Peak side-by-side -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px;">
+                <div class="card">
+                    <h3 style="color: #03a9f4; margin-bottom: 15px;">🏖️ Weekend vs Weekday</h3>
+                    <div id="weekendWeekdayComparison" style="font-size: 0.95em;">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3 style="color: #ff9800; margin-bottom: 15px;">🔥 Peak vs Off-Peak Hours</h3>
+                    <div id="peakOffpeakComparison" style="font-size: 0.95em;">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Breakdown -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">📅 Monthly Breakdown (2024)</h2>
+            <p style="color: #aaa; margin-bottom: 15px; font-size: 0.9em;"></p>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Total Transactions</th>
+                            <th>Failures</th>
+                            <th>Failure Rate</th>
+                            <th>Fraud Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyTable">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 30px;">Loading monthly data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Forecast Summary -->
+        <div style="margin-top: 40px; margin-bottom: 30px;">
+            <h2 style="color: white; margin-bottom: 20px;">🔮 Forecast Summary</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-title">Next 7 Days</div>
+                    <div id="forecast7dSummary" style="line-height: 1.8;">Expected to remain stable</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Next 30 Days</div>
+                    <div id="forecast30dSummary" style="line-height: 1.8;">Expected trend analysis</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="color: white; text-align: center; padding: 30px 20px; background: rgba(0,0,0,0.2);">
+        <p><span id="updateTime"></span></p>
+    </footer>
+
+    <script src="/static/trends.js"></script>
+        <!-- Floating AI Chat Assistant Widget -->
+        <div id="ai-chat-widget" style="position:fixed;bottom:32px;right:32px;z-index:9999;">
+            <button id="openChatBtn" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:50%;width:64px;height:64px;box-shadow:0 4px 24px rgba(102,126,234,0.18);font-size:2em;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
+            <div id="chatPopup" style="display:none;position:absolute;bottom:80px;right:0;width:350px;max-width:90vw;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,0.18);overflow:hidden;">
+                <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:16px 20px;font-weight:bold;">AI Chat Assistant <span style="float:right;cursor:pointer;font-size:1.2em;" id="closeChatBtn">×</span></div>
+                <div id="widgetMessages" style="height:260px;overflow-y:auto;padding:16px;background:#f7f8fa;"></div>
+                <div style="padding:12px 16px;background:#f7f8fa;display:flex;gap:8px;">
+                    <input id="widgetInput" type="text" placeholder="Ask me anything..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid #ddd;"/>
+                    <button id="widgetSendBtn" style="background:#667eea;color:white;border:none;border-radius:8px;padding:8px 18px;font-weight:bold;">Send</button>
+                </div>
+            </div>
+        </div>
+        <script>
+        // Floating Chat Widget Logic
+        const openBtn = document.getElementById('openChatBtn');
+        const closeBtn = document.getElementById('closeChatBtn');
+        const chatPopup = document.getElementById('chatPopup');
+        openBtn.onclick = () => { chatPopup.style.display = 'block'; };
+        closeBtn.onclick = () => { chatPopup.style.display = 'none'; };
+        // Chat logic (basic, connects to /ws/chat)
+        let ws = null;
+        function appendMsg(msg, from) {
+            const div = document.createElement('div');
+            div.style.margin = '8px 0';
+            div.style.textAlign = from === 'user' ? 'right' : 'left';
+            div.innerHTML = `<span style="display:inline-block;padding:8px 14px;border-radius:12px;background:${from==='user'?'#667eea':'#e3f2fd'};color:${from==='user'?'#fff':'#1976d2'};max-width:80%;">${msg}</span>`;
+            document.getElementById('widgetMessages').appendChild(div);
+            document.getElementById('widgetMessages').scrollTop = 9999;
+        }
+        function sendWidgetMsg() {
+            const input = document.getElementById('widgetInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            appendMsg(msg, 'user');
+            input.value = '';
+            if (!ws || ws.readyState !== 1) {
+                ws = new WebSocket(`ws://${window.location.host}/ws/chat`);
+                ws.onmessage = (event) => {
+                    if (event.data === '__END__') return;
+                    appendMsg(event.data, 'bot');
+                };
+                ws.onopen = () => ws.send(msg);
+            } else {
+                ws.send(msg);
+            }
+        }
+        document.getElementById('widgetSendBtn').onclick = sendWidgetMsg;
+        document.getElementById('widgetInput').onkeypress = function(e){ if(e.key==='Enter') sendWidgetMsg(); };
+        </script>
+    </body>
+</html>

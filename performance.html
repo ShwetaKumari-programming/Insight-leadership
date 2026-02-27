@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Metrics - Conversational Leadership Analytics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo" style="text-decoration: none; color: inherit;">🏠 Home</a>
+            <ul class="nav-links">
+                <li><a href="/">💬 Chat (Primary)</a></li>
+                <li style="margin-left: 20px; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.3);"><a href="/dashboard">📊 Dashboard</a></li>
+                <li><a href="/failures">🔴 Failures</a></li>
+                <li><a href="/weekend">📅 Weekend</a></li>
+                <li><a href="/performance" class="active">⚡ Performance</a></li>
+                <li><a href="/trends">📈 Trends</a></li>
+                <!-- Leadership tab removed -->
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>⚡ Performance Metrics</h1>
+            <div id="roleDisplay" style="margin-top:8px;font-size:1em;color:#fff;opacity:0.85;"></div>
+                
+        </div>
+
+        <!-- Chat-First Invitation Banner -->
+        <div class="card" style="margin-bottom: 30px; background: linear-gradient(135deg, #00bcd415 0%, #009688 15 100%); border-left: 4px solid #00bcd4;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="margin-bottom: 10px; color: #00bcd4;">🚀 Optimizing performance?</h3>
+                    <p style="margin: 0; color: #555; font-size: 0.95em;"></p>
+                </div>
+                <a href="/" class="btn btn-primary" style="display: inline-block; margin-left: 20px; white-space: nowrap; padding: 12px 24px; font-size: 1em; flex-shrink: 0; background: linear-gradient(135deg, #00bcd4 0%, #009688 100%);">Ask Chat →</a>
+            </div>
+        </div>
+
+        <!-- Key Performance Indicators -->
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title">Average Latency <span title="Average time for a transaction to complete. High latency can signal technical bottlenecks or degraded user experience, which leadership should monitor.">ℹ️</span></div>
+                <div class="card-value" id="avg-latency">-</div>
+                <div class="card-subtitle">Milliseconds (ms)</div>
+                <div id="latencyStatus"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">P95 Latency <span title="95th percentile latency. Indicates how slow the slowest 5% of transactions are, helping leadership spot outlier issues.">ℹ️</span></div>
+                <div class="card-value" id="p95-latency">-</div>
+                <div class="card-subtitle">95th percentile</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">P99 Latency <span title="99th percentile latency. Used by leadership to identify rare but severe performance problems.">ℹ️</span></div>
+                <div class="card-value" id="p99-latency">-</div>
+                <div class="card-subtitle">99th percentile</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Max Latency</div>
+                <div class="card-value" id="max-latency">-</div>
+                <div class="card-subtitle">Worst case</div>
+            </div>
+        </div>
+
+        <!-- Throughput Metrics -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">📊 Throughput & Capacity</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-title">Transactions/Second</div>
+                    <div class="card-value" id="throughput">-</div>
+                    <div class="card-subtitle">Current rate</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Success Rate</div>
+                    <div class="card-value" id="success-rate">-</div>
+                    <div class="card-subtitle">Percentage</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">APDEX Score</div>
+                    <div class="card-value" id="apdex">-</div>
+                    <div class="card-subtitle">0-1 scale</div>
+                    <div id="apdexStatus"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Analysis -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">🎯 Performance Analysis</h2>
+            <div class="card">
+                <div id="performanceAnalysis" style="line-height: 1.8; font-size: 0.95em;">
+                    <p style="text-align: center; color: #999; padding: 30px;">Loading analysis...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latency Breakdown -->
+        <div style="margin-top: 40px; margin-bottom: 30px;">
+            <h2 style="color: white; margin-bottom: 20px;">⏱️ Latency Distribution</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value (ms)</th>
+                            <th>Status</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="latency-table">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 30px;">Loading latency data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer style="color: white; text-align: center; padding: 30px 20px; background: rgba(0,0,0,0.2);">
+        <p>Last updated: <span id="updateTime"></span></p>
+    </footer>
+
+    <script src="/static/performance.js"></script>
+</body>
+</html>

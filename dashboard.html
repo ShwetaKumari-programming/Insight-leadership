@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Conversational Leadership Analytics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <script>
+    if (!localStorage.getItem('isLoggedIn')) {
+        window.location.href = '/login.html';
+    }
+    </script>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-container">
+            <a href="/" class="logo" style="text-decoration: none; color: inherit;">🏠 Home</a>
+            <ul class="nav-links">
+                <!-- <li><a href="/">💬 Chat</a></li> -->
+                <li style="margin-left: 20px; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.3);"><a href="/dashboard" class="active">📊 Dashboard</a></li>
+                <li><a href="/failures">🔴 Failures</a></li>
+                <li><a href="/weekend">📅 Weekend</a></li>
+                <li><a href="/performance">⚡ Performance</a></li>
+                <li><a href="/trends">📈 Trends</a></li>
+                    <li><a href="/logout" style="float:right">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>📊 System Health Dashboard</h1>
+            <div id="roleDisplay" style="margin-top:8px;font-size:1em;color:#fff;opacity:0.85;"></div>
+            
+        </div>
+        <!-- Chat-First Invitation Banner -->
+        <div class="card" style="margin-bottom: 30px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-left: 4px solid #667eea;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h3 style="margin-bottom: 10px; color: #667eea;">💬 New Here? Start with a Question!</h3>
+                    <p style="margin: 0; color: #555; font-size: 0.95em;">Rather than scrolling through metrics, try asking a natural language question about your system. Our AI will analyze the data and show you exactly what matters—then suggest this dashboard.</p>
+                    <p style="margin: 10px 0 0 0; color: #667eea; font-weight: 500; font-size: 0.9em;">⚡ Get insights in ~2 seconds with explanations of WHY each metric matters</p>
+                </div>
+                <a href="/" class="btn btn-primary" style="display: inline-block; margin-left: 20px; white-space: nowrap; padding: 12px 24px; font-size: 1em; flex-shrink: 0;\">Open Chat →</a>
+            </div>
+        </div>
+        <!-- System Status Cards -->
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-title">🔴 Failure Rate <span title="Shows the percentage of failed UPI transactions. High failure rates may indicate systemic issues or bank/network outages that require leadership attention.">ℹ️</span></div>
+                <div class="card-value" id="failureRate">-</div>
+                <div class="card-subtitle">Current failure rate (%)</div>
+                <div id="failureStatus"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚡ Avg Latency <span title="Measures the average time (in ms) for a transaction to complete. High latency can signal technical bottlenecks or degraded user experience, which leadership should monitor.">ℹ️</span></div>
+                <div class="card-value" id="avgLatency">-</div>
+                <div class="card-subtitle">Milliseconds</div>
+                <div id="latencyStatus"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📊 Total Transactions <span title="Total number of UPI transactions analyzed. Indicates dataset coverage and business scale for leadership review.">ℹ️</span></div>
+                <div class="card-value" id="totalTransactions">-</div>
+                <div class="card-subtitle">UPI Transactions (2024 Dataset)</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📅 Weekend vs Weekday <span title="Compares failure rates on weekends vs weekdays. If weekends are riskier, leadership may need to adjust staffing or infra for those days.">ℹ️</span></div>
+                <div class="card-value" id="weekendRatio">-</div>
+                <div class="card-subtitle">Failure rate ratio</div>
+                <div id="weekendStatus"></div>
+            </div>
+        </div>
+
+        <!-- Quick Access Panels -->
+        <div style="margin: 40px 0;">
+            
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">🔴 Failure Analysis</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Explore detailed failure metrics, error distributions, and root causes across our system.</p>
+                    <a href="/failures" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">📅 Weekend Analysis</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Compare weekend vs weekday performance, identify patterns, and get actionable insights.</p>
+                    <a href="/weekend" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">⚡ Performance Metrics</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Monitor latency, throughput, APDEX, and other performance indicators in real-time.</p>
+                    <a href="/performance" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">📈 Trends & Forecasting</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Analyze historical trends, detect anomalies, and forecast future system behavior.</p>
+                    <a href="/trends" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">💬 AI Chat Assistant</h3>
+                    <p style="color: #666; margin-bottom: 15px;">Ask natural language questions about your system. AI automatically routes to right analysis.</p>
+                    <a href="/chat" class="btn btn-primary" style="display: inline-block;">Open Chat →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Table -->
+        <div style="margin-top: 40px;">
+            <h2 style="color: white; margin-bottom: 20px;">📊 System Metrics</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody id="metricsTable">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 30px;">Loading metrics...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer style="color: white; text-align: center; padding: 30px 20px; margin-top: 50px; background: rgba(0,0,0,0.2);">
+        
+      
+    </footer>
+
+    <script src="/static/dashboard.js"></script>
+        <!-- Floating AI Chat Assistant Widget -->
+        <div id="ai-chat-widget" style="position:fixed;bottom:32px;right:32px;z-index:9999;">
+            <button id="openChatBtn" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;border-radius:50%;width:64px;height:64px;box-shadow:0 4px 24px rgba(102,126,234,0.18);font-size:2em;cursor:pointer;display:flex;align-items:center;justify-content:center;">💬</button>
+            <div id="chatPopup" style="display:none;position:absolute;bottom:80px;right:0;width:350px;max-width:90vw;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,0.18);overflow:hidden;">
+                <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:16px 20px;font-weight:bold;">AI Chat Assistant <span style="float:right;cursor:pointer;font-size:1.2em;" id="closeChatBtn">×</span></div>
+                <div id="widgetMessages" style="height:260px;overflow-y:auto;padding:16px;background:#f7f8fa;"></div>
+                <div style="padding:12px 16px;background:#f7f8fa;display:flex;gap:8px;">
+                    <input id="widgetInput" type="text" placeholder="Ask me anything..." style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid #ddd;"/>
+                    <button id="widgetSendBtn" style="background:#667eea;color:white;border:none;border-radius:8px;padding:8px 18px;font-weight:bold;">Send</button>
+                </div>
+            </div>
+        </div>
+        <script>
+        // Floating Chat Widget Logic
+        const openBtn = document.getElementById('openChatBtn');
+        const closeBtn = document.getElementById('closeChatBtn');
+        const chatPopup = document.getElementById('chatPopup');
+        openBtn.onclick = () => { chatPopup.style.display = 'block'; };
+        closeBtn.onclick = () => { chatPopup.style.display = 'none'; };
+        // Chat logic (basic, connects to /ws/chat)
+        let ws = null;
+        function appendMsg(msg, from) {
+            const div = document.createElement('div');
+            div.style.margin = '8px 0';
+            div.style.textAlign = from === 'user' ? 'right' : 'left';
+            div.innerHTML = `<span style="display:inline-block;padding:8px 14px;border-radius:12px;background:${from==='user'?'#667eea':'#e3f2fd'};color:${from==='user'?'#fff':'#1976d2'};max-width:80%;">${msg}</span>`;
+            document.getElementById('widgetMessages').appendChild(div);
+            document.getElementById('widgetMessages').scrollTop = 9999;
+        }
+        function sendWidgetMsg() {
+            const input = document.getElementById('widgetInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            appendMsg(msg, 'user');
+            input.value = '';
+            if (!ws || ws.readyState !== 1) {
+                ws = new WebSocket(`ws://${window.location.host}/ws/chat`);
+                ws.onmessage = (event) => {
+                    if (event.data === '__END__') return;
+                    appendMsg(event.data, 'bot');
+                };
+                ws.onopen = () => ws.send(msg);
+            } else {
+                ws.send(msg);
+            }
+        }
+        document.getElementById('widgetSendBtn').onclick = sendWidgetMsg;
+        document.getElementById('widgetInput').onkeypress = function(e){ if(e.key==='Enter') sendWidgetMsg(); };
+        </script>
+    </body>
+</html>

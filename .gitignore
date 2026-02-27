@@ -1,0 +1,7 @@
+# Ignore environment variable files
+.env
+.env.example
+user_db.json
+passwords.txt
+__pycache__/
+.venv/

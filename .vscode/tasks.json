@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start UPI Analytics Server",
+			"type": "shell",
+			"command": "cd /d \"c:\\Users\\KHUSHI\\conversation\" && taskkill /F /IM python.exe 2>nul & timeout /t 2 /nobreak >nul & python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload",
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "none"
+		},
+		{
+			"label": "Restart UPI Analytics Server",
+			"type": "shell",
+			"command": "taskkill /F /IM python.exe 2>nul & timeout /t 2 & cd c:\\Users\\KHUSHI\\conversation && python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "UPI Performance Server",
+			"type": "shell",
+			"command": "taskkill /F /IM python.exe 2>nul & ping -n 3 127.0.0.1 >nul & cd c:\\Users\\KHUSHI\\conversation && python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "UPI Server Final",
+			"type": "shell",
+			"command": "taskkill /F /IM python.exe 2>nul & ping -n 3 127.0.0.1 >nul & cd c:\\Users\\KHUSHI\\conversation && python -m uvicorn main:app --host 127.0.0.1 --port 8001 --reload",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

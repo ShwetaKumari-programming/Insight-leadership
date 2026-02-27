@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - UPI Analytics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 40px 30px 30px 30px;
+        }
+        .login-container h2 { text-align: center; color: #667eea; margin-bottom: 24px; }
+        .login-container label { font-weight: 600; color: #555; }
+        .login-container input {
+            width: 100%; padding: 10px; margin: 10px 0 20px 0; border-radius: 6px; border: 1px solid #ccc;
+        }
+        .login-container button {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 6px; font-size: 1em; font-weight: 700; cursor: pointer;
+        }
+        .login-container .error { color: #e74c3c; text-align: center; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <div class="error" id="loginError" style="display:none;"></div>
+            <button type="submit">Login</button>
+            <div style="text-align:center;margin-top:18px;">
+                <a href="/signin.html" style="color:#667eea;font-weight:600;text-decoration:none;">New user? Sign in here</a>
+                <br>
+            </div>
+        </form>
+    </div>
+    <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userRole', data.role);
+                window.location.href = '/';
+            } else {
+                document.getElementById('loginError').textContent = data.detail || 'Invalid username or password';
+                document.getElementById('loginError').style.display = 'block';
+            }
+        } catch (err) {
+            document.getElementById('loginError').textContent = 'Login failed';
+            document.getElementById('loginError').style.display = 'block';
+        }
+    });
+    </script>
+</body>
+</html>
