@@ -2,7 +2,7 @@
 ChatGPT Connector - Integrates OpenAI's GPT API for chat responses
 """
 import os
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -25,17 +25,17 @@ class ChatGPTConnector:
                     timeout=30.0,
                 )
                 self.available = True
-                print("✅ ChatGPT connector initialized successfully with API key")
+                print("ChatGPT connector initialized successfully with API key")
             except ImportError as e:
                 self.available = False
-                print(f"⚠️ OpenAI package not installed: {e}")
+                print(f"OpenAI package not installed: {e}")
             except Exception as e:
                 self.available = False
-                print(f"⚠️ ChatGPT initialization error: {str(e)}")
+                print(f"ChatGPT initialization error: {str(e)}")
         else:
-            print("⚠️ OPENAI_API_KEY environment variable not found")
+            print("OPENAI_API_KEY environment variable not found")
     
-    def ask(self, question: str, context: Optional[str] = None) -> dict:
+    def ask(self, question: str, context: Optional[str] = None, history: Optional[List[Dict[str, Any]]] = None) -> dict:
         """
         Ask ChatGPT a question with optional context about transaction data
         
@@ -54,17 +54,31 @@ class ChatGPTConnector:
             }
         
         try:
-            system_prompt = "You are an analytics assistant helping analyze transaction data and system performance. Provide clear, actionable insights."
+            system_prompt = (
+                "You are a helpful, conversational AI assistant. "
+                "Answer based on the user's exact question and previous messages. "
+                "If the question is about UPI/system analytics, provide clear actionable insights. "
+                "If it is general, answer normally like ChatGPT."
+            )
             
             if context:
                 system_prompt += f"\n\nContext: {context}"
             
+            messages = [{"role": "system", "content": system_prompt}]
+
+            # Include recent conversation turns for true chat behavior.
+            if history:
+                for item in history[-12:]:
+                    role = item.get("role")
+                    content = str(item.get("content", "")).strip()
+                    if role in {"user", "assistant"} and content:
+                        messages.append({"role": role, "content": content})
+
+            messages.append({"role": "user", "content": question})
+
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": question}
-                ],
+                messages=messages,
                 temperature=0.7,
                 max_tokens=1000
             )
@@ -79,7 +93,7 @@ class ChatGPTConnector:
             }
         
         except Exception as e:
-            print(f"❌ ChatGPT API Error: {str(e)}")
+            print(f"ChatGPT API error: {str(e)}")
             return {
                 "success": False,
                 "response": f"ChatGPT error: {str(e)}",
@@ -97,6 +111,6 @@ def is_chatgpt_available() -> bool:
     return chatgpt_connector.available
 
 
-def ask_chatgpt(question: str, context: Optional[str] = None) -> dict:
+def ask_chatgpt(question: str, context: Optional[str] = None, history: Optional[List[Dict[str, Any]]] = None) -> dict:
     """Ask ChatGPT a question"""
-    return chatgpt_connector.ask(question, context)
+    return chatgpt_connector.ask(question, context, history)

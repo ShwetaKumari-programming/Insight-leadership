@@ -7,6 +7,22 @@
 let trendsAutoRefresh = null;
 const API_BASE = window.location.port === '5500' ? 'http://127.0.0.1:8001' : '';
 
+function openChatWithQuestion(question) {
+    if (!question) return;
+    localStorage.setItem('pending_chat_question', question);
+    window.location.href = '/chat.html';
+}
+
+function bindAskAssistantButtons() {
+    const buttons = document.querySelectorAll('.ask-chat-btn');
+    buttons.forEach((btn) => {
+        btn.onclick = () => {
+            const question = btn.getAttribute('data-chat-question') || '';
+            openChatWithQuestion(question);
+        };
+    });
+}
+
 async function fetchTrendsMetrics() {
     try {
         const response = await fetch(`${API_BASE}/api/metrics/trends`);
@@ -427,6 +443,7 @@ function stopTrendsAutoRefresh() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Trends page loaded');
     setupTrendsActions();
+    bindAskAssistantButtons();
     startTrendsAutoRefresh(60000);
 });
 

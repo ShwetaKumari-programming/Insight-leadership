@@ -323,4 +323,14 @@ document.addEventListener("DOMContentLoaded", () => {
     connectWebSocket().catch(() => {
         updateConnectionStatus(false);
     });
+
+    const pendingQuestion = localStorage.getItem("pending_chat_question");
+    if (pendingQuestion) {
+        localStorage.removeItem("pending_chat_question");
+        const inputField = document.getElementById("messageInput");
+        if (inputField) {
+            inputField.value = pendingQuestion;
+            sendMessage();
+        }
+    }
 });

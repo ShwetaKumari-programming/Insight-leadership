@@ -28,7 +28,9 @@
     // Immediately logout and redirect
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userRole');
-    window.location.href = '/login.html';
+    localStorage.removeItem('pending_chat_question');
+    sessionStorage.clear();
+    window.location.replace('/login.html');
     </script>
 </body>
 </html>

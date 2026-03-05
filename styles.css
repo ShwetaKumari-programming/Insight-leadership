@@ -987,3 +987,40 @@ button:hover,
     cursor: pointer;
 }
 
+.experience-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border: 1px solid hsl(var(--border));
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.55);
+}
+
+.experience-text {
+    font-size: 0.9rem;
+    color: hsl(var(--foreground));
+}
+
+.experience-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.experience-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--border));
+    border-radius: 8px;
+    padding: 6px 10px;
+    text-decoration: none;
+    color: hsl(var(--foreground));
+    background: rgba(30, 41, 59, 0.65);
+    font-size: 12px;
+    cursor: pointer;
+}
+

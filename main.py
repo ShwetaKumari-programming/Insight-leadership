@@ -28,13 +28,28 @@ async def chat(request: Request):
     data = await request.json()
     user_message = data.get("message")
     context = data.get("context")
+    history = data.get("history", [])
 
     if not user_message:
         return JSONResponse({"reply": "Please send a non-empty message."}, status_code=400)
 
-    result = ask_chatgpt(user_message, context)
+    result = ask_chatgpt(user_message, context, history)
     if not result.get("success"):
-        return JSONResponse({"reply": result.get("response", "Chat service unavailable.")}, status_code=503)
+        try:
+            fallback = await ask_question(QuestionRequest(question=user_message))
+            return JSONResponse({
+                "reply": getattr(fallback, "response", "Chat service unavailable."),
+                "model": "local-fallback"
+            })
+        except Exception:
+            try:
+                basic = processor.process(user_message)
+                return JSONResponse({
+                    "reply": basic.get("response", "Chat service unavailable."),
+                    "model": "local-basic"
+                })
+            except Exception:
+                return JSONResponse({"reply": result.get("response", "Chat service unavailable.")}, status_code=503)
 
     return JSONResponse({
         "reply": result.get("response", ""),
@@ -45,7 +60,7 @@ async def chat(request: Request):
 
 # ...existing code...
 
-@app.get("/{filename}")
+@app.get("/legacy/{filename}")
 async def serve_any_html(filename: str):
     # Serve HTML files from static directory if requested at root
     if filename.endswith('.html'):
@@ -57,7 +72,6 @@ async def serve_any_html(filename: str):
         if os.path.exists(root_file_path):
             return FileResponse(root_file_path)
     return JSONResponse({"detail": "Not Found"}, status_code=404)
-    return {"detail": "Not Found"}
 
  # ...existing code...
 
@@ -84,30 +98,27 @@ No SQL. Pure Python + Pandas. Chat-first analytics.
 """
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
-# WebSocket endpoint for real-time chat streaming
-import asyncio
-
-# Initialize FastAPI app
-app = FastAPI(
-    title="Conversational Leadership Analytics",
-)
 
 
 # Streaming ChatGPT response generator
-async def stream_chatgpt_response(question: str, context=None):
+async def stream_chatgpt_response(question: str, context=None, history=None):
     import asyncio
     from chatgpt_connector import ask_chatgpt
     # Call ChatGPT for the answer
-    result = ask_chatgpt(question, context)
+    result = ask_chatgpt(question, context, history)
     answer = result.get('response', 'Sorry, I could not get an answer.')
 
     # If OpenAI is not configured/available, gracefully fall back to local processor.
     if not result.get('success'):
         try:
-            fallback = processor.process(question)
-            answer = fallback.get('response') or answer
+            fallback = await ask_question(QuestionRequest(question=question))
+            answer = getattr(fallback, 'response', answer) or answer
         except Exception:
-            pass
+            try:
+                basic = processor.process(question)
+                answer = basic.get('response') or answer
+            except Exception:
+                pass
 
     # Stream word by word for effect
     for word in answer.split():
@@ -123,6 +134,7 @@ async def websocket_chat(websocket: WebSocket):
                 data = await websocket.receive_text()
                 question = data
                 context = None
+                history = []
 
                 # Accept either plain text messages or JSON payloads from the frontend.
                 try:
@@ -151,7 +163,7 @@ async def websocket_chat(websocket: WebSocket):
                     continue
 
                 # Use ChatGPT for all questions.
-                async for chunk in stream_chatgpt_response(question, context):
+                async for chunk in stream_chatgpt_response(question, context, history):
                     await websocket.send_text(chunk)
                 await websocket.send_text("__END__")  # Signal end of message
             except Exception as e:
@@ -375,9 +387,8 @@ async def serve_login_page():
 @app.get("/logout", tags=["Frontend"])
 @app.get("/logout.html", tags=["Frontend"])
 async def serve_logout_page():
-    """Logout and redirect to login page"""
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/login")
+    """Serve logout page that clears local session and redirects to login."""
+    return FileResponse("logout.html")
 
 # Add missing /signin endpoint
 @app.get("/signin", tags=["Frontend"])
