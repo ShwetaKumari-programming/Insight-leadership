@@ -215,7 +215,7 @@ function renderPerformanceAnalysis(data) {
 
     // ── 5. Bank Performance (Top 10) ──
     if (analysis.bank_performance && analysis.bank_performance.length > 0) {
-        html += `<h3 style="color: #00bcd4; margin: 30px 0 15px; border-bottom: 1px solid rgba(0,188,212,0.3); padding-bottom: 8px;">🏦 Bank Performance (Top 10 by Volume)</h3>`;
+        html += `<h3 style="color: #00bcd4; margin: 30px 0 15px; border-bottom: 1px solid rgba(0,188,212,0.3); padding-bottom: 8px;">🏦 Bank Performance (Top 10)</h3>`;
         html += `<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead><tr style="background: rgba(255,255,255,0.05);">
                 <th style="padding: 10px; text-align: left; color: #aaa;">Bank</th>
@@ -361,7 +361,7 @@ function renderPerformanceAnalysis(data) {
     // ── 10. Fraud Analysis ──
     if (analysis.fraud_analysis) {
         const fraud = analysis.fraud_analysis;
-        html += `<h3 style="color: #00bcd4; margin: 30px 0 15px; border-bottom: 1px solid rgba(0,188,212,0.3); padding-bottom: 8px;">🛡️ Fraud Detection Summary</h3>`;
+        html += `<h3 style="color: #00bcd4; margin: 30px 0 15px; border-bottom: 1px solid rgba(0,188,212,0.3); padding-bottom: 8px;">🛡️ Fraud Detection </h3>`;
         const fraudColor = fraud.fraud_rate_pct > 1 ? '#e74c3c' : fraud.fraud_rate_pct > 0.1 ? '#f39c12' : '#28a745';
         html += `
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
@@ -381,12 +381,12 @@ function renderPerformanceAnalysis(data) {
     }
 
     // ── 11. Key Findings Summary ──
-    html += `<h style="color: #00bcd4; margin: 30px 0 15px; border-bottom: 1px solid rgba(0,188,212,0.3); padding-bottom: 8px;"> Key Findings from ${(data.total_transactions || 0).toLocaleString()} >`;
-    html += `<ul style="padding-left: 20px; line-height: 2.2; color:#ddd;">`;
+    
+    
     html += `<li><strong>${(data.total_transactions || 0).toLocaleString()}</strong> </li>`;
     html += `<li>Average latency: <strong>${data.average_latency} ms</strong> | Median: <strong>${data.median_latency || '-'} ms</strong> | P95: <strong>${data.p95_latency} ms</strong> | P99: <strong>${data.p99_latency} ms</strong></li>`;
     html += `<li>Success rate: <strong style="color: #28a745;">${data.success_rate}%</strong> (${(data.total_success || 0).toLocaleString()} successful) | Failure rate: <strong style="color: #e74c3c;">${data.failure_rate}%</strong> (${(data.total_failures || 0).toLocaleString()} failed)</li>`;
-    html += `<li>APDEX score: <strong>${data.apdex}</strong> — ${data.apdex >= 0.94 ? 'Excellent user satisfaction' : data.apdex >= 0.85 ? 'Good user satisfaction' : 'Needs improvement'}</li>`;
+    
 
     if (analysis.device_performance && analysis.device_performance.length > 0) {
         const topDevice = analysis.device_performance[0];
@@ -398,7 +398,7 @@ function renderPerformanceAnalysis(data) {
     }
     if (analysis.bank_performance && analysis.bank_performance.length > 0) {
         const topBank = analysis.bank_performance[0];
-        html += `<li>Top bank by volume: <strong>${topBank.bank}</strong> (${topBank.count.toLocaleString()} transactions, ${topBank.success_rate}% success rate)</li>`;
+        html += `<li>Top bank : <strong>${topBank.bank}</strong> (${topBank.count.toLocaleString()} transactions, ${topBank.success_rate}% success rate)</li>`;
     }
     if (analysis.fraud_analysis) {
         html += `<li>Fraud flagged: <strong>${analysis.fraud_analysis.total_flagged.toLocaleString()}</strong> transactions (${analysis.fraud_analysis.fraud_rate_pct}% rate)</li>`;
