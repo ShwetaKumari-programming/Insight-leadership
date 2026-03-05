@@ -5,32 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - UPI Analytics</title>
     <link rel="stylesheet" href="/static/styles.css">
-    <style>
-        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .signup-container {
-            max-width: 400px;
-            margin: 80px auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-            padding: 40px 30px 30px 30px;
-        }
-        .signup-container h2 { text-align: center; color: #667eea; margin-bottom: 24px; }
-        .signup-container label { font-weight: 600; color: #555; }
-        .signup-container input {
-            width: 100%; padding: 10px; margin: 10px 0 20px 0; border-radius: 6px; border: 1px solid #ccc;
-        }
-        .signup-container button {
-            width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; border: none; border-radius: 6px; font-size: 1em; font-weight: 700; cursor: pointer;
-        }
-        .signup-container .error { color: #e74c3c; text-align: center; margin-bottom: 10px; }
-        .signup-container .success { color: #27ae60; text-align: center; margin-bottom: 10px; }
-    </style>
 </head>
 <body>
-    <div class="signup-container">
-        <h2>Sign Up</h2>
+    <div class="auth-shell">
+    <div class="auth-card">
+        <h2>Create Account</h2>
+        <p class="auth-subtitle">Register and start with AI chat on live UPI data.</p>
         <form id="signupForm">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" required>
@@ -44,19 +24,22 @@
             <div class="error" id="signupError" style="display:none;"></div>
             <div class="success" id="signupSuccess" style="display:none;"></div>
             <button type="submit">Sign Up</button>
-            <div style="text-align:center;margin-top:18px;">
-                <a href="/login" style="color:#667eea;font-weight:600;text-decoration:none;">Already have an account? Login</a>
+            <div class="auth-links">
+                <a href="/login.html">Already have an account? Login</a>
             </div>
         </form>
     </div>
+    </div>
     <script>
+    const apiBase = window.location.port === '5500' ? 'http://127.0.0.1:8001' : '';
+
     document.getElementById('signupForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const role = document.getElementById('role').value;
         try {
-            const res = await fetch('/api/register', {
+            const res = await fetch(`${apiBase}/api/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password, role })
@@ -66,7 +49,7 @@
                 document.getElementById('signupSuccess').textContent = 'Registration successful! You can now log in.';
                 document.getElementById('signupSuccess').style.display = 'block';
                 document.getElementById('signupError').style.display = 'none';
-                setTimeout(() => { window.location.href = '/login'; }, 2000);
+                setTimeout(() => { window.location.href = '/login.html'; }, 2000);
             } else {
                 document.getElementById('signupError').textContent = data.detail || 'Registration failed';
                 document.getElementById('signupError').style.display = 'block';

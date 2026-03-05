@@ -3,15 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot</title>
+    <title>AI Chat - UPI Analytics</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+    <script>
+    if (!localStorage.getItem('isLoggedIn')) {
+        window.location.href = '/login.html';
+    }
+    </script>
+    <nav>
+        <div class="nav-container">
+            <a href="/chat.html" class="logo" style="text-decoration:none;">AI Chat</a>
+            <ul class="nav-links">
+                <li><a href="/chat.html" class="active nav-item">Chat</a></li>
+                <li><a href="/dashboard.html" class="nav-item">Dashboard</a></li>
+                <li><a href="/failures.html" class="nav-item">Failures</a></li>
+                <li><a href="/weekend.html" class="nav-item">Weekend</a></li>
+                <li><a href="/performance.html" class="nav-item">Performance</a></li>
+                <li><a href="/trends.html" class="nav-item">Trends</a></li>
+                <li><a href="/logout.html" class="nav-item">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="chat-container">
-        <h2>AI Chatbot</h2>
-        <div id="chat-box"></div>
-        <input type="text" id="user-input" placeholder="Type your message...">
-        <button onclick="sendMessage()">Send</button>
+        <div class="chat-header">
+            <h1>AI Analytics Assistant</h1>
+            <p>Ask questions on real 250,000 UPI transactions</p>
+        </div>
+
+        <div class="chat-toolbar">
+            <button type="button" id="newChatBtn" class="toolbar-btn">New Chat</button>
+            <button type="button" id="regenerateBtn" class="toolbar-btn">Regenerate</button>
+            <button type="button" id="stopBtn" class="toolbar-btn">Stop</button>
+            <button type="button" id="exportBtn" class="toolbar-btn">Export</button>
+            <span id="connectionStatus" class="chat-badge">Offline</span>
+        </div>
+
+        <div class="quick-prompts" id="quickPrompts">
+            <button type="button" class="prompt-chip" data-question="What is the current failure rate and top error code?">Failure summary</button>
+            <button type="button" class="prompt-chip" data-question="Compare weekend vs weekday failures and explain why.">Weekend comparison</button>
+            <button type="button" class="prompt-chip" data-question="Show performance bottlenecks and immediate actions.">Performance actions</button>
+        </div>
+
+        <div id="messagesContainer" class="messages-container"></div>
+
+        <div class="input-container">
+            <input type="text" id="messageInput" class="message-input" placeholder="Ask about failures, trends, weekend issues, performance..." />
+            <button class="send-button" onclick="sendMessage()">Send</button>
+        </div>
     </div>
     <script src="/static/chat.js"></script>
 </body>

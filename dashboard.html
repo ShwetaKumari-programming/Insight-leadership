@@ -18,12 +18,12 @@
             <a href="/" class="logo" style="text-decoration: none; color: inherit;">🏠 Home</a>
             <ul class="nav-links">
                 <!-- <li><a href="/">💬 Chat</a></li> -->
-                <li style="margin-left: 20px; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.3);"><a href="/dashboard" class="active">📊 Dashboard</a></li>
-                <li><a href="/failures">🔴 Failures</a></li>
-                <li><a href="/weekend">📅 Weekend</a></li>
-                <li><a href="/performance">⚡ Performance</a></li>
-                <li><a href="/trends">📈 Trends</a></li>
-                    <li><a href="/logout" style="float:right">Logout</a></li>
+                <li style="margin-left: 20px; padding-left: 20px; border-left: 2px solid rgba(255,255,255,0.3);"><a href="/dashboard.html" class="active">📊 Dashboard</a></li>
+                <li><a href="/failures.html">🔴 Failures</a></li>
+                <li><a href="/weekend.html">📅 Weekend</a></li>
+                <li><a href="/performance.html">⚡ Performance</a></li>
+                <li><a href="/trends.html">📈 Trends</a></li>
+                    <li><a href="/logout.html" style="float:right">Logout</a></li>
             </ul>
         </div>
     </nav>
@@ -82,31 +82,31 @@
                 <div class="card">
                     <h3 style="margin-bottom: 15px;">🔴 Failure Analysis</h3>
                     <p style="color: #666; margin-bottom: 15px;">Explore detailed failure metrics, error distributions, and root causes across our system.</p>
-                    <a href="/failures" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                    <a href="/failures.html" class="btn btn-primary" style="display: inline-block;">View Details →</a>
                 </div>
 
                 <div class="card">
                     <h3 style="margin-bottom: 15px;">📅 Weekend Analysis</h3>
                     <p style="color: #666; margin-bottom: 15px;">Compare weekend vs weekday performance, identify patterns, and get actionable insights.</p>
-                    <a href="/weekend" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                    <a href="/weekend.html" class="btn btn-primary" style="display: inline-block;">View Details →</a>
                 </div>
 
                 <div class="card">
                     <h3 style="margin-bottom: 15px;">⚡ Performance Metrics</h3>
                     <p style="color: #666; margin-bottom: 15px;">Monitor latency, throughput, APDEX, and other performance indicators in real-time.</p>
-                    <a href="/performance" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                    <a href="/performance.html" class="btn btn-primary" style="display: inline-block;">View Details →</a>
                 </div>
 
                 <div class="card">
                     <h3 style="margin-bottom: 15px;">📈 Trends & Forecasting</h3>
                     <p style="color: #666; margin-bottom: 15px;">Analyze historical trends, detect anomalies, and forecast future system behavior.</p>
-                    <a href="/trends" class="btn btn-primary" style="display: inline-block;">View Details →</a>
+                    <a href="/trends.html" class="btn btn-primary" style="display: inline-block;">View Details →</a>
                 </div>
 
                 <div class="card">
                     <h3 style="margin-bottom: 15px;">💬 AI Chat Assistant</h3>
                     <p style="color: #666; margin-bottom: 15px;">Ask natural language questions about your system. AI automatically routes to right analysis.</p>
-                    <a href="/chat" class="btn btn-primary" style="display: inline-block;">Open Chat →</a>
+                    <a href="/chat.html" class="btn btn-primary" style="display: inline-block;">Open Chat →</a>
                 </div>
             </div>
         </div>
@@ -175,8 +175,9 @@
             if (!msg) return;
             appendMsg(msg, 'user');
             input.value = '';
+            const wsBase = window.location.port === '5500' ? 'ws://127.0.0.1:8001' : `ws://${window.location.host}`;
             if (!ws || ws.readyState !== 1) {
-                ws = new WebSocket(`ws://${window.location.host}/ws/chat`);
+                ws = new WebSocket(`${wsBase}/ws/chat`);
                 ws.onmessage = (event) => {
                     if (event.data === '__END__') return;
                     appendMsg(event.data, 'bot');

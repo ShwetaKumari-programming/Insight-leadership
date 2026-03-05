@@ -5,10 +5,11 @@
  */
 
 let performanceAutoRefresh = null;
+const API_BASE = window.location.port === '5500' ? 'http://127.0.0.1:8001' : '';
 
 async function fetchPerformanceMetrics() {
     try {
-        const response = await fetch('/api/performance');
+        const response = await fetch(`${API_BASE}/api/performance`);
         const data = await response.json();
 
         if (data.message) {

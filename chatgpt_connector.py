@@ -12,7 +12,7 @@ load_dotenv()
 class ChatGPTConnector:
     def __init__(self):
         self.api_key = os.getenv('OPENAI_API_KEY')
-        self.model = 'gpt-3.5-turbo'
+        self.model = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
         self.available = False
         self.client = None
         
@@ -32,7 +32,6 @@ class ChatGPTConnector:
             except Exception as e:
                 self.available = False
                 print(f"⚠️ ChatGPT initialization error: {str(e)}")
-                print(f"   API Key starts with: {self.api_key[:20]}..." if self.api_key else "   No API key found")
         else:
             print("⚠️ OPENAI_API_KEY environment variable not found")
     

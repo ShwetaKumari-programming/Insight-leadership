@@ -50,7 +50,10 @@
         }
 
         
-        fetch('/api/qa-stats')
+        const apiBase = window.location.port === '5500' ? 'http://127.0.0.1:8001' : '';
+        const wsBase = window.location.port === '5500' ? 'ws://127.0.0.1:8001' : `ws://${window.location.host}`;
+
+        fetch(`${apiBase}/api/qa-stats`)
             .then(r => r.json())
             .then(data => {
                 const fmt = n => Number(n).toLocaleString();
@@ -100,7 +103,7 @@
             messageInput.value = '';
             showTypingIndicator();
             try {
-                const response = await fetch('/api/ask', {
+                const response = await fetch(`${apiBase}/api/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question })
@@ -157,18 +160,18 @@
                 
         <!-- Main Navigation Bar -->
         <nav style="width:100%; background:rgba(255,255,255,0.18); padding:18px 0 10px 0; margin-bottom:32px; box-shadow:0 2px 12px rgba(102,126,234,0.07); display:flex; justify-content:center; gap:32px; border-radius:0 0 18px 18px; font-size:1.13em; font-weight:600;">
-            <a href="/dashboard" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Dashboard</a>
-            <a href="/weekend" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Weekend</a>
-            <a href="/failures" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Failures</a>
-            <a href="/trends" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Trends</a>
-            <a href="/chat" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Chat</a>
+            <a href="/dashboard.html" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Dashboard</a>
+            <a href="/weekend.html" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Weekend</a>
+            <a href="/failures.html" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Failures</a>
+            <a href="/trends.html" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Trends</a>
+            <a href="/chat.html" style="color:#fff; text-decoration:none; padding:8px 18px; border-radius:8px; transition:background 0.2s; background:rgba(102,126,234,0.18);">Chat</a>
         </nav>
         <div style="max-width: 600px; margin: 60px auto; background: white; border-radius: 18px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); padding: 40px 32px; text-align: center;">
             <h1 style="color: #667eea; margin-bottom: 18px;">AI Chat Features</h1>
             <ul style="text-align: left; margin: 0 auto 30px auto; max-width: 400px; color: #333; font-size: 1.08em; line-height: 1.7;">
                 
             </ul>
-            <button onclick="window.location.href='/chat'" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; padding: 14px 38px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 18px;">Go to Chat</button>
+            <button onclick="window.location.href='/chat.html'" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; padding: 14px 38px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 18px;">Go to Chat</button>
         </div>
         <!-- Floating AI Chat Assistant Widget -->
         <div id="ai-chat-widget" style="position:fixed;bottom:32px;right:32px;z-index:9999;">
@@ -220,7 +223,7 @@
             appendMsg(msg, 'user');
             input.value = '';
             if (!ws || ws.readyState !== 1) {
-                ws = new WebSocket(`ws://${window.location.host}/ws/chat`);
+                ws = new WebSocket(`${wsBase}/ws/chat`);
                 ws.onmessage = (event) => {
                     if (event.data === '__END__') return;
                     appendMsg(event.data, 'bot');

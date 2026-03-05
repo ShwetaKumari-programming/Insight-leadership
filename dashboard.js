@@ -4,11 +4,12 @@
  */
 
 let autoRefreshInterval = null;
+const API_BASE = window.location.port === '5500' ? 'http://127.0.0.1:8001' : '';
 
 async function fetchDashboardMetrics() {
     try {
         console.log('Fetching dashboard metrics...');
-        const response = await fetch('/api/metrics/dashboard');
+        const response = await fetch(`${API_BASE}/api/metrics/dashboard`);
         const data = await response.json();
         
         if (data.metrics) {

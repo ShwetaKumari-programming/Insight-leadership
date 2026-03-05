@@ -2,9 +2,9 @@
 from fastapi import FastAPI, Request, HTTPException, WebSocket, WebSocketDisconnect, Body
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-import openai
 import os
 import asyncio
+from typing import Optional
 
 app = FastAPI(
     title="Conversational Leadership Analytics",
@@ -21,26 +21,25 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR, html=True), name="static"
 
 # ...existing code...
 
-# === OpenAI Chat Endpoint ===
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
 @app.post("/chat")
 async def chat(request: Request):
+    from chatgpt_connector import ask_chatgpt
+
     data = await request.json()
     user_message = data.get("message")
-    chat_history = data.get("history", [])
+    context = data.get("context")
 
-    # Prepare messages for OpenAI API
-    messages = [{"role": "system", "content": "You are a helpful assistant."}]
-    messages += chat_history
-    messages.append({"role": "user", "content": user_message})
+    if not user_message:
+        return JSONResponse({"reply": "Please send a non-empty message."}, status_code=400)
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # or "gpt-4"
-        messages=messages
-    )
-    reply = response.choices[0].message["content"]
-    return JSONResponse({"reply": reply})
+    result = ask_chatgpt(user_message, context)
+    if not result.get("success"):
+        return JSONResponse({"reply": result.get("response", "Chat service unavailable.")}, status_code=503)
+
+    return JSONResponse({
+        "reply": result.get("response", ""),
+        "model": result.get("model", "unknown")
+    })
 
 # Generic fallback route to serve any HTML file in the root directory (must be last)
 
@@ -95,11 +94,11 @@ app = FastAPI(
 
 
 # Streaming ChatGPT response generator
-async def stream_chatgpt_response(question: str):
+async def stream_chatgpt_response(question: str, context=None):
     import asyncio
     from chatgpt_connector import ask_chatgpt
     # Call ChatGPT for the answer
-    result = ask_chatgpt(question)
+    result = ask_chatgpt(question, context)
     answer = result.get('response', 'Sorry, I could not get an answer.')
     # Stream word by word for effect
     for word in answer.split():
@@ -112,8 +111,37 @@ async def websocket_chat(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            # Use ChatGPT for all questions
-            async for chunk in stream_chatgpt_response(data):
+            question = data
+            context = None
+
+            # Accept either plain text messages or JSON payloads from the frontend.
+            try:
+                payload = json.loads(data)
+                question = (payload.get("message") or "").strip()
+                history = payload.get("history", [])
+                context = payload.get("context")
+
+                if not context and isinstance(history, list) and history:
+                    # Keep context compact to avoid token bloat while still enabling memory.
+                    recent = history[-8:]
+                    context_lines = []
+                    for item in recent:
+                        role = item.get("role", "user")
+                        content = str(item.get("content", "")).strip()
+                        if content:
+                            context_lines.append(f"{role}: {content}")
+                    if context_lines:
+                        context = "\n".join(context_lines)
+            except Exception:
+                pass
+
+            if not question:
+                await websocket.send_text("Please send a non-empty message.")
+                await websocket.send_text("__END__")
+                continue
+
+            # Use ChatGPT for all questions.
+            async for chunk in stream_chatgpt_response(question, context):
                 await websocket.send_text(chunk)
             await websocket.send_text("__END__")  # Signal end of message
     except WebSocketDisconnect:
@@ -279,52 +307,60 @@ async def login_user(user: UserLoginRequest):
 # Frontend Page Routes
 @app.get("/", tags=["Frontend"])
 async def serve_home():
-    """Serve the index.html as the homepage (main landing page)"""
-    return FileResponse("index.html")
+    """Serve the dashboard as the default homepage for stable real-data experience."""
+    return FileResponse("dashboard.html")
 
 @app.get("/dashboard", tags=["Frontend"])
+@app.get("/dashboard.html", tags=["Frontend"])
 async def serve_dashboard_page():
     """Serve the dashboard page"""
     return FileResponse("dashboard.html")
 
 @app.get("/failures", tags=["Frontend"])
+@app.get("/failures.html", tags=["Frontend"])
 async def serve_failures_page():
     """Serve the failure analysis page"""
     return FileResponse("failures.html")
 
 @app.get("/weekend", tags=["Frontend"])
+@app.get("/weekend.html", tags=["Frontend"])
 async def serve_weekend_page():
     """Serve the weekend analysis page"""
     return FileResponse("weekend.html")
 
 @app.get("/performance", tags=["Frontend"])
+@app.get("/performance.html", tags=["Frontend"])
 async def serve_performance_page():
     """Serve the performance metrics page"""
     return FileResponse("performance.html")
 
 @app.get("/trends", tags=["Frontend"])
+@app.get("/trends.html", tags=["Frontend"])
 async def serve_trends_page():
     """Serve the trends & forecasting page"""
     return FileResponse("trends.html")
 
 @app.get("/chat", tags=["Frontend"])
+@app.get("/chat.html", tags=["Frontend"])
 async def serve_chat_page():
     """Serve the chat interface page"""
     return FileResponse("chat.html")
 
 @app.get("/home", tags=["Frontend"])
 async def serve_home_page():
-    """Serve the home page — Overview, Scope, Q&A, Architecture, Chat all in one"""
-    return FileResponse("index.html")
+    """Serve stable home experience backed by real transaction dataset."""
+    return FileResponse("dashboard.html")
 
 # Add missing /login endpoint
 @app.get("/login", tags=["Frontend"])
+@app.get("/login.html", tags=["Frontend"])
 async def serve_login_page():
     """Serve the login page"""
     return FileResponse("login.html")
 
 # Add missing /logout endpoint
 @app.get("/logout", tags=["Frontend"])
+@app.get("/logout.html", tags=["Frontend"])
 async def serve_logout_page():
     """Logout and redirect to login page"""
     from fastapi.responses import RedirectResponse
@@ -332,12 +368,14 @@ async def serve_logout_page():
 
 # Add missing /signin endpoint
 @app.get("/signin", tags=["Frontend"])
+@app.get("/signin.html", tags=["Frontend"])
 async def serve_signin_page():
     """Serve the signin page for new user registration"""
     return FileResponse("signin.html")
 
 # Add missing /reset_password endpoint
 @app.get("/reset_password", tags=["Frontend"])
+@app.get("/reset_password.html", tags=["Frontend"])
 async def serve_reset_password_page():
     """Serve the password reset page"""
     return FileResponse("reset_password.html")

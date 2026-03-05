@@ -30,6 +30,12 @@ conversation/
 ```
 
 ## How to Run
+0. Configure local environment variables (never commit secrets):
+   ```bash
+   copy .env.example .env
+   ```
+   Then set `OPENAI_API_KEY` in `.env` with your own key.
+
 1. Install dependencies:
    ```bash
    pip install -r requirements.txt
@@ -56,6 +62,14 @@ conversation/
 - Edit HTML files in `static/` for frontend changes
 - Add new API routes in `routers/`
 - Update analytics logic in `analytics_engine.py`
+
+## Security Notes
+- Keep real API keys only in `.env` (already ignored by Git).
+- `.env.example` is safe to commit because it only contains placeholders.
+- Before pushing, scan for accidental keys:
+   ```bash
+   git grep -n "sk-proj-\|OPENAI_API_KEY="
+   ```
 
 ## License
 MIT License

@@ -4,11 +4,12 @@
  */
 
 let failureAutoRefresh = null;
+const API_BASE = window.location.port === '5500' ? 'http://127.0.0.1:8001' : '';
 
 async function fetchFailureMetrics() {
     try {
         console.log('Fetching failure metrics...');
-        const response = await fetch('/api/metrics/failures');
+        const response = await fetch(`${API_BASE}/api/metrics/failures`);
         const data = await response.json();
         
         // Handle new router response format
