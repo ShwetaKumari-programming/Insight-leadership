@@ -321,8 +321,7 @@ async def serve_home_page():
 @app.get("/login", tags=["Frontend"])
 async def serve_login_page():
     """Serve the login page"""
-    file_path = os.path.join(os.path.dirname(__file__), "static", "login.html")
-    return FileResponse(file_path)
+    return FileResponse("login.html")
 
 # Add missing /logout endpoint
 @app.get("/logout", tags=["Frontend"])
@@ -335,15 +334,13 @@ async def serve_logout_page():
 @app.get("/signin", tags=["Frontend"])
 async def serve_signin_page():
     """Serve the signin page for new user registration"""
-    file_path = os.path.join(os.path.dirname(__file__), "static", "signin.html")
-    return FileResponse(file_path)
+    return FileResponse("signin.html")
 
 # Add missing /reset_password endpoint
 @app.get("/reset_password", tags=["Frontend"])
 async def serve_reset_password_page():
     """Serve the password reset page"""
-    file_path = os.path.join(os.path.dirname(__file__), "static", "reset_password.html")
-    return FileResponse(file_path)
+    return FileResponse("reset_password.html")
 
 
 
