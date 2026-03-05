@@ -100,6 +100,15 @@ async def stream_chatgpt_response(question: str, context=None):
     # Call ChatGPT for the answer
     result = ask_chatgpt(question, context)
     answer = result.get('response', 'Sorry, I could not get an answer.')
+
+    # If OpenAI is not configured/available, gracefully fall back to local processor.
+    if not result.get('success'):
+        try:
+            fallback = processor.process(question)
+            answer = fallback.get('response') or answer
+        except Exception:
+            pass
+
     # Stream word by word for effect
     for word in answer.split():
         yield word + " "
@@ -110,40 +119,44 @@ async def websocket_chat(websocket: WebSocket):
     await websocket.accept()
     try:
         while True:
-            data = await websocket.receive_text()
-            question = data
-            context = None
-
-            # Accept either plain text messages or JSON payloads from the frontend.
             try:
-                payload = json.loads(data)
-                question = (payload.get("message") or "").strip()
-                history = payload.get("history", [])
-                context = payload.get("context")
+                data = await websocket.receive_text()
+                question = data
+                context = None
 
-                if not context and isinstance(history, list) and history:
-                    # Keep context compact to avoid token bloat while still enabling memory.
-                    recent = history[-8:]
-                    context_lines = []
-                    for item in recent:
-                        role = item.get("role", "user")
-                        content = str(item.get("content", "")).strip()
-                        if content:
-                            context_lines.append(f"{role}: {content}")
-                    if context_lines:
-                        context = "\n".join(context_lines)
-            except Exception:
-                pass
+                # Accept either plain text messages or JSON payloads from the frontend.
+                try:
+                    payload = json.loads(data)
+                    question = (payload.get("message") or "").strip()
+                    history = payload.get("history", [])
+                    context = payload.get("context")
 
-            if not question:
-                await websocket.send_text("Please send a non-empty message.")
+                    if not context and isinstance(history, list) and history:
+                        # Keep context compact to avoid token bloat while still enabling memory.
+                        recent = history[-8:]
+                        context_lines = []
+                        for item in recent:
+                            role = item.get("role", "user")
+                            content = str(item.get("content", "")).strip()
+                            if content:
+                                context_lines.append(f"{role}: {content}")
+                        if context_lines:
+                            context = "\n".join(context_lines)
+                except Exception:
+                    pass
+
+                if not question:
+                    await websocket.send_text("Please send a non-empty message.")
+                    await websocket.send_text("__END__")
+                    continue
+
+                # Use ChatGPT for all questions.
+                async for chunk in stream_chatgpt_response(question, context):
+                    await websocket.send_text(chunk)
+                await websocket.send_text("__END__")  # Signal end of message
+            except Exception as e:
+                await websocket.send_text(f"Chat error: {str(e)}")
                 await websocket.send_text("__END__")
-                continue
-
-            # Use ChatGPT for all questions.
-            async for chunk in stream_chatgpt_response(question, context):
-                await websocket.send_text(chunk)
-            await websocket.send_text("__END__")  # Signal end of message
     except WebSocketDisconnect:
         print("WebSocket disconnected")
 from fastapi.middleware.cors import CORSMiddleware

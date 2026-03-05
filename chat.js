@@ -7,6 +7,21 @@ let isStreaming = false;
 const CHAT_STORAGE_KEY = "upi_chat_history_v1";
 let chatHistory = [];
 
+async function fetchFallbackAnswer(question) {
+    const response = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+    });
+
+    if (!response.ok) {
+        throw new Error("fallback request failed");
+    }
+
+    const data = await response.json();
+    return data.response || data.answer || "No response received.";
+}
+
 function updateConnectionStatus(connected) {
     const status = document.getElementById("connectionStatus");
     if (!status) return;
@@ -16,9 +31,15 @@ function updateConnectionStatus(connected) {
 
 function connectWebSocket() {
     return new Promise((resolve, reject) => {
-        if (ws && wsConnected) {
+        if (ws && wsConnected && ws.readyState === WebSocket.OPEN) {
             resolve();
             return;
+        }
+
+        if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.CLOSING)) {
+            ws.close();
+            ws = null;
+            wsConnected = false;
         }
 
         ws = new WebSocket(`ws://${window.location.host}/ws/chat`);
@@ -33,6 +54,10 @@ function connectWebSocket() {
         ws.onclose = () => {
             wsConnected = false;
             updateConnectionStatus(false);
+            if (isStreaming) {
+                isStreaming = false;
+                createMessageNode("Connection was interrupted. Please send again.", "bot");
+            }
         };
 
         ws.onerror = (err) => {
@@ -164,7 +189,18 @@ async function sendMessage(overrideQuestion = null, isRegenerate = false) {
     try {
         await connectWebSocket();
     } catch (_) {
-        createMessageNode("Connection error. Please try again.", "bot");
+        if (!isRegenerate) {
+            createMessageNode(question, "user");
+            addUserMessageToHistory(question);
+            inputField.value = "";
+        }
+        try {
+            const fallbackAnswer = await fetchFallbackAnswer(question);
+            createMessageNode(fallbackAnswer, "bot");
+            addAssistantMessageToHistory(fallbackAnswer);
+        } catch {
+            createMessageNode("Connection error. Please try again.", "bot");
+        }
         return;
     }
 
@@ -183,12 +219,19 @@ async function sendMessage(overrideQuestion = null, isRegenerate = false) {
     ws.onmessage = (event) => {
         if (event.data === "__END__") {
             isStreaming = false;
-            addAssistantMessageToHistory(currentAssistantText.trim());
+            if (currentAssistantText.trim()) {
+                addAssistantMessageToHistory(currentAssistantText.trim());
+            }
             return;
         }
         currentAssistantText += event.data;
         messageTextNode.innerHTML = formatMessageText(currentAssistantText);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    };
+
+    ws.onerror = () => {
+        isStreaming = false;
+        createMessageNode("Live connection failed. Reconnecting...", "bot");
     };
 
     ws.send(JSON.stringify({
