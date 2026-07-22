@@ -3,8 +3,11 @@ services:
     name: insight-leadership
     env: python
     plan: free
+    region: oregon
     buildCommand: "pip install --upgrade pip setuptools wheel && export PIP_ONLY_BINARY=:all: && export PIP_NO_BUILD_ISOLATION=1 && pip install --only-binary=:all: Cython==3.2.8 numpy==1.26.4 pandas==2.1.4 scipy==1.13.1 statsmodels==0.14.2 fastapi==0.104.1 uvicorn==0.24.0 pydantic==2.5.0 python-multipart==0.0.6 python-dotenv==1.0.0 openai==2.16.0"
     startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.8
+      - key: PORT
+        value: 10000
