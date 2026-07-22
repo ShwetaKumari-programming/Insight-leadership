@@ -2,10 +2,5 @@ fastapi==0.104.1
 uvicorn==0.24.0
 pydantic==2.5.0
 python-multipart==0.0.6
-cython>=3.0.10
-pandas>=2.2.3
-numpy>=2.2.0
-scipy>=1.14.1
-statsmodels>=0.14.2
 python-dotenv==1.0.0
 openai==2.16.0
