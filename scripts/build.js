@@ -3,6 +3,7 @@ const path = require('path');
 
 const projectRoot = path.resolve(__dirname, '..');
 const buildDir = path.join(projectRoot, 'build');
+const legacyPublishDir = path.join(projectRoot, 'npm build');
 const staticDir = path.join(projectRoot, 'static');
 
 const htmlPages = [
@@ -33,6 +34,7 @@ const routeAliases = [
 ];
 
 fs.rmSync(buildDir, { recursive: true, force: true });
+fs.rmSync(legacyPublishDir, { recursive: true, force: true });
 fs.mkdirSync(buildDir, { recursive: true });
 
 for (const page of htmlPages) {
@@ -56,5 +58,7 @@ for (const alias of routeAliases) {
 if (fs.existsSync(staticDir)) {
   fs.cpSync(staticDir, path.join(buildDir, 'static'), { recursive: true });
 }
+
+fs.cpSync(buildDir, legacyPublishDir, { recursive: true });
 
 console.log(`Build complete: ${buildDir}`);

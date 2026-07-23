@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - UPI Analytics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="auth-shell">
+    <div class="auth-card">
+        <h2>Create Account</h2>
+        <p class="auth-subtitle">Register and start with AI chat on live UPI data.</p>
+        <form id="signupForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <label for="role">Role</label>
+            <select id="role" name="role">
+                <option value="Viewer">Viewer</option>
+                <option value="Admin">Admin</option>
+            </select>
+            <div class="error" id="signupError" style="display:none;"></div>
+            <div class="success" id="signupSuccess" style="display:none;"></div>
+            <button type="submit">Sign Up</button>
+            <div class="auth-links">
+                <a href="/login.html">Already have an account? Login</a>
+            </div>
+        </form>
+    </div>
+    </div>
+    <script>
+    const apiBase = window.location.port === '5500' ? 'http://127.0.0.1:8001' : '';
+
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const role = document.getElementById('role').value;
+        try {
+            const res = await fetch(`${apiBase}/api/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                document.getElementById('signupSuccess').textContent = 'Registration successful! You can now log in.';
+                document.getElementById('signupSuccess').style.display = 'block';
+                document.getElementById('signupError').style.display = 'none';
+                setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+            } else {
+                document.getElementById('signupError').textContent = data.detail || 'Registration failed';
+                document.getElementById('signupError').style.display = 'block';
+                document.getElementById('signupSuccess').style.display = 'none';
+            }
+        } catch (err) {
+            document.getElementById('signupError').textContent = 'Registration failed';
+            document.getElementById('signupError').style.display = 'block';
+            document.getElementById('signupSuccess').style.display = 'none';
+        }
+    });
+    </script>
+</body>
+</html>
