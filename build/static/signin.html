@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - UPI Analytics</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body { background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%); }
+        .signin-container {
+            max-width: 400px;
+            margin: 80px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            padding: 40px 30px 30px 30px;
+        }
+        .signin-container h2 { text-align: center; color: #185a9d; margin-bottom: 24px; }
+        .signin-container label { font-weight: 600; color: #555; }
+        .signin-container input {
+            width: 100%; padding: 10px; margin: 10px 0 20px 0; border-radius: 6px; border: 1px solid #ccc;
+        }
+        .signin-container button {
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            color: white; border: none; border-radius: 6px; font-size: 1em; font-weight: 700; cursor: pointer;
+        }
+        .signin-container .error { color: #e74c3c; text-align: center; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="signin-container">
+        <h2>Sign In</h2>
+        <form id="signinForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <div class="error" id="signinError" style="display:none;"></div>
+            <button type="submit">Sign In</button>
+        </form>
+    </div>
+    <script>
+    document.getElementById('signinForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const role = 'Viewer';
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role })
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                document.getElementById('signinError').textContent = data.detail || 'Registration failed';
+                document.getElementById('signinError').style.display = 'block';
+                return;
+            }
+            // Registration successful, auto-login
+            const loginRes = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (!loginRes.ok) {
+                document.getElementById('signinError').textContent = 'Login failed after registration';
+                document.getElementById('signinError').style.display = 'block';
+                return;
+            }
+            const loginData = await loginRes.json();
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', loginData.role);
+            window.location.href = '/';
+        } catch (err) {
+            document.getElementById('signinError').textContent = 'Registration error';
+            document.getElementById('signinError').style.display = 'block';
+        }
+    });
+    // Redirect to login page if already signed in
+    if(localStorage.getItem('isLoggedIn')) {
+        window.location.href = '/static/login.html';
+    }
+    </script>
+</body>
+</html>

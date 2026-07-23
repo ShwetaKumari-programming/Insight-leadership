@@ -2,6 +2,6 @@
   "name": "insight-leadership",
   "private": true,
   "scripts": {
-    "build": "node -e \"const fs=require('fs'); fs.mkdirSync('build',{recursive:true}); fs.writeFileSync('build/index.html','<!doctype html><html><body><h1>Insight Leadership</h1><p>Frontend build placeholder</p></body></html>');\""
+    "build": "node scripts/build.js"
   }
 }
