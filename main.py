@@ -251,9 +251,9 @@ async def startup_message():
         from analytics_engine import analytics_engine
         df = load_transaction_data()
         analytics_engine.load_data(df)
-        print(f"✅ Loaded {len(df):,} UPI transactions from CSV into analytics engine")
+        print(f"Loaded {len(df):,} UPI transactions from CSV into analytics engine")
     except Exception as e:
-        print(f"⚠️ Could not auto-load transaction data: {e}")
+        print(f"Could not auto-load transaction data: {e}")
 
 
 # Request/Response Models
