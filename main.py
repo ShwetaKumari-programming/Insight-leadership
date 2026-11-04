@@ -303,6 +303,8 @@ class UserLoginRequest(BaseModel):
 USER_DB_PATH = os.path.join(os.path.dirname(__file__), "user_db.json")
 
 def load_users():
+    if not os.path.exists(USER_DB_PATH):
+        save_users([])
     with open(USER_DB_PATH, "r") as f:
         return json.load(f)["users"]
 
