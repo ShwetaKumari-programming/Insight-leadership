@@ -179,6 +179,7 @@ from typing import Optional
 import time
 import os
 import json
+import tempfile
 import pandas as pd
 import numpy as np
 
@@ -300,7 +301,12 @@ class UserLoginRequest(BaseModel):
     password: str
 
 # User DB file
-USER_DB_PATH = os.path.join(os.path.dirname(__file__), "user_db.json")
+if os.environ.get("USER_DB_PATH"):
+    USER_DB_PATH = os.environ["USER_DB_PATH"]
+elif os.environ.get("VERCEL"):
+    USER_DB_PATH = os.path.join(tempfile.gettempdir(), "insight-leadership-user-db.json")
+else:
+    USER_DB_PATH = os.path.join(os.path.dirname(__file__), "user_db.json")
 
 def load_users():
     if not os.path.exists(USER_DB_PATH):
